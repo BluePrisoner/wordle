@@ -1,0 +1,195 @@
+/* Additional custom styles for Wordle Clone */
+
+/* Tile animations */
+.tile {
+    animation: tilePop 0.3s ease-in-out;
+}
+
+@keyframes tilePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Keyboard key hover effects */
+.key:hover {
+    transform: scale(1.05);
+    transition: transform 0.1s ease;
+}
+
+/* Modal animations */
+.modal-enter {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Status message animations */
+.status-message {
+    animation: statusSlideIn 0.5s ease-out;
+}
+
+@keyframes statusSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive design improvements */
+@media (max-width: 640px) {
+    .tile {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.25rem;
+    }
+    
+    .key {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.75rem;
+        margin: 0.125rem;
+    }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1f2937;
+        color: #f9fafb;
+    }
+    
+    .bg-white {
+        background-color: #374151;
+    }
+    
+    .text-gray-800 {
+        color: #f9fafb;
+    }
+    
+    .text-gray-600 {
+        color: #d1d5db;
+    }
+    
+    .border-gray-300 {
+        border-color: #4b5563;
+    }
+}
+
+/* Loading spinner for async operations */
+.spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Toast notifications */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: white;
+    font-weight: 600;
+    z-index: 1000;
+    animation: toastSlideIn 0.3s ease-out;
+}
+
+.toast.success {
+    background-color: #10b981;
+}
+
+.toast.error {
+    background-color: #ef4444;
+}
+
+.toast.info {
+    background-color: #3b82f6;
+}
+
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Game board grid improvements */
+.game-board {
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+    gap: 0.25rem;
+    margin: 0 auto;
+    max-width: 350px;
+}
+
+.game-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.25rem;
+}
+
+/* Keyboard layout improvements */
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+/* Focus states for accessibility */
+.tile:focus,
+.key:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .tile.correct {
+        background-color: #059669;
+        border-color: #059669;
+    }
+    
+    .tile.present {
+        background-color: #d97706;
+        border-color: #d97706;
+    }
+    
+    .tile.absent {
+        background-color: #6b7280;
+        border-color: #6b7280;
+    }
+} 

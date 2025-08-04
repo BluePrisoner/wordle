@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Test game.php</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
+    button { margin-right: 10px; padding: 10px 15px; }
+    pre { background: #eee; padding: 10px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Test game.php API</h1>
+
+  <button onclick="startNewGame()">Start New Game</button>
+  <button onclick="submitGuess()">Submit Guess</button>
+
+  <br><br>
+  <label>Guess: <input type="text" id="guess" value="apple" maxlength="5" /></label>
+  <label>Game ID: <input type="number" id="gameId" /></label>
+
+  <pre id="output">Response will appear here...</pre>
+
+  <script>
+    async function startNewGame() {
+      const response = await fetch('game.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'action=new_game'
+      });
+      const data = await response.json();
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+      if (data.success) {
+        document.getElementById('gameId').value = data.game_id;
+      }
+    }
+
+    async function submitGuess() {
+      const gameId = document.getElementById('gameId').value;
+      const guess = document.getElementById('guess').value.toLowerCase();
+
+      if (!gameId || guess.length !== 5) {
+        alert('Please enter a valid game ID and 5-letter guess.');
+        return;
+      }
+
+      const response = await fetch('game.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `action=submit_guess&game_id=${encodeURIComponent(gameId)}&guess=${encodeURIComponent(guess)}`
+      });
+
+      const data = await response.json();
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
