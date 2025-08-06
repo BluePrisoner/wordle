@@ -2,142 +2,164 @@
 require_once 'config.php';
 requireLogin();
 
-$conn = getDBConnection();
-
-// Get leaderboard data
-$stmt = $conn->prepare("
-    SELECT 
-        u.username,
-        COUNT(g.id) AS games_played,
-        SUM(CASE WHEN g.status = 'won' THEN 1 ELSE 0 END) AS games_won,
-        SUM(g.points) AS total_points
-    FROM users u
-    LEFT JOIN game_sessions g ON u.id = g.user_id
-    GROUP BY u.id, u.username
-    ORDER BY total_points DESC, games_won DESC, games_played ASC
-    LIMIT 50
-");
-
-$stmt->execute();
-$result = $stmt->get_result();
-$leaderboard = $result->fetch_all(MYSQLI_ASSOC);
-
-$stmt->close();
-$conn->close();
+$leaderboard = getTopPlayers(50);
+$userRank = getUserRank($_SESSION['user_id']);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaderboard - Wordle Clone</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <h1 class="text-2xl font-bold text-gray-800">Wordle Clone</h1>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="index.php" class="text-gray-600 hover:text-gray-900">Game</a>
-                    <a href="leaderboard.php" class="text-blue-600 font-medium">Leaderboard</a>
-                    <span class="text-gray-600">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></span>
-                    <a href="logout.php" class="text-red-600 hover:text-red-800">Logout</a>
-                </div>
-            </div>
-        </div>
-    </nav>
 
-    <div class="max-w-4xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-2xl font-bold text-gray-800">Leaderboard</h2>
-                <p class="text-gray-600 mt-1">Top players ranked by total points</p>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Rank
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Player
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Points
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Wins
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Games
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Win Rate
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <?php if (empty($leaderboard)): ?>
-                            <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                                    No games played yet. Be the first to play!
-                                </td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach ($leaderboard as $index => $player): ?>
-                                <tr class="<?php echo $index < 3 ? 'bg-yellow-50' : ''; ?>">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        <?php 
-                                        if ($index === 0) echo '🥇';
-                                        elseif ($index === 1) echo '🥈';
-                                        elseif ($index === 2) echo '🥉';
-                                        else echo ($index + 1);
-                                        ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        <?php echo htmlspecialchars($player['username']); ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
-                                        <?php echo number_format($player['total_points'] ?? 0); ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <?php echo $player['games_won'] ?? 0; ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <?php echo $player['games_played'] ?? 0; ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <?php 
-                                        $gamesPlayed = $player['games_played'] ?? 0;
-                                        $gamesWon = $player['games_won'] ?? 0;
-                                        if ($gamesPlayed > 0) {
-                                            echo round(($gamesWon / $gamesPlayed) * 100, 1) . '%';
-                                        } else {
-                                            echo '0%';
-                                        }
-                                        ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <div class="mt-6 text-center">
-            <a href="index.php" 
-               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                Play Game
-            </a>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wordle Clone - Leaderboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    }
+    
+    .leaderboard-card {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      background: white;
+    }
+    
+    .leaderboard-item {
+      transition: all 0.3s ease;
+    }
+    
+    .leaderboard-item:hover {
+      transform: translateX(5px);
+    }
+    
+    .rank-1 {
+      background: linear-gradient(135deg, #fde047 0%, #f59e0b 100%);
+    }
+    
+    .rank-2 {
+      background: linear-gradient(135deg, #e5e7eb 0%, #9ca3af 100%);
+    }
+    
+    .rank-3 {
+      background: linear-gradient(135deg, #d4b08d 0%, #a16207 100%);
+    }
+    
+    .user-rank {
+      box-shadow: 0 0 0 3px #3b82f6;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-gray-800">Wordle Clone</h1>
+      <div class="flex items-center gap-4 text-sm">
+        <a href="home.php" class="text-blue-600 hover:underline">Home</a>
+        <a href="game.php" class="text-blue-600 hover:underline">New Game</a>
+        <span class="text-gray-600">Welcome, <?= htmlspecialchars($_SESSION['username']); ?></span>
+        <a href="logout.php" class="text-red-600 hover:underline">Logout</a>
+      </div>
     </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto py-8 px-4">
+    <!-- Leaderboard Header -->
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Leaderboard</h1>
+      <div class="bg-white rounded-lg px-4 py-2 shadow">
+        <span class="text-gray-600">Your Rank: </span>
+        <span class="font-bold"><?= $userRank ?></span>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="leaderboard-card overflow-hidden mb-8">
+      <table class="w-full">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="py-4 px-6 text-left">Rank</th>
+            <th class="py-4 px-6 text-left">Player</th>
+            <th class="py-4 px-6 text-left">Games</th>
+            <th class="py-4 px-6 text-left">Wins</th>
+            <th class="py-4 px-6 text-left">Win Rate</th>
+            <th class="py-4 px-6 text-left">Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($leaderboard as $index => $player): ?>
+          <tr class="leaderboard-item border-t border-gray-200 
+              <?= $index < 3 ? 'rank-' . ($index + 1) : '' ?>
+              <?= $player['username'] === $_SESSION['username'] ? 'user-rank' : 'hover:bg-gray-50' ?>">
+            <td class="py-4 px-6 font-bold">
+              <?php if ($index === 0): ?>
+                <span class="text-2xl">🥇</span>
+              <?php elseif ($index === 1): ?>
+                <span class="text-2xl">🥈</span>
+              <?php elseif ($index === 2): ?>
+                <span class="text-2xl">🥉</span>
+              <?php else: ?>
+                <?= $index + 1 ?>
+              <?php endif; ?>
+            </td>
+            <td class="py-4 px-6">
+              <div class="flex items-center">
+                <?php if ($player['username'] === $_SESSION['username']): ?>
+                  <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded-full mr-2">You</span>
+                <?php endif; ?>
+                <?= htmlspecialchars($player['username']) ?>
+              </div>
+            </td>
+            <td class="py-4 px-6"><?= $player['total_games'] ?></td>
+            <td class="py-4 px-6"><?= $player['wins'] ?></td>
+            <td class="py-4 px-6"><?= $player['win_percentage'] ?>%</td>
+            <td class="py-4 px-6 font-bold"><?= $player['total_points'] ?></td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Your Stats -->
+    <div class="leaderboard-card p-6 mb-8">
+      <h2 class="text-xl font-bold mb-4">Your Stats</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-gray-100 p-4 rounded-lg">
+          <div class="text-sm text-gray-600 mb-1">Current Rank</div>
+          <div class="text-2xl font-bold"><?= $userRank ?></div>
+        </div>
+        <div class="bg-gray-100 p-4 rounded-lg">
+          <div class="text-sm text-gray-600 mb-1">Total Points</div>
+          <div class="text-2xl font-bold"><?= $leaderboard[$userRank - 1]['total_points'] ?></div>
+        </div>
+        <div class="bg-gray-100 p-4 rounded-lg">
+          <div class="text-sm text-gray-600 mb-1">Win Rate</div>
+          <div class="text-2xl font-bold"><?= $leaderboard[$userRank - 1]['win_percentage'] ?>%</div>
+        </div>
+        <div class="bg-gray-100 p-4 rounded-lg">
+          <div class="text-sm text-gray-600 mb-1">Games Played</div>
+          <div class="text-2xl font-bold"><?= $leaderboard[$userRank - 1]['total_games'] ?></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back to Home -->
+    <div class="text-center">
+      <a href="home.php" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700">Back to Home</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 py-6">
+    <div class="max-w-7xl mx-auto px-4 text-center text-gray-600 text-sm">
+      <p>Wordle Clone &copy; <?= date('Y') ?> - All rights reserved</p>
+    </div>
+  </footer>
 </body>
-</html> 
+
+</html>
