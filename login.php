@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['username'] = $user['username'];
                 
                 // Redirect to game
-                header('Location: index.php');
+                header('Location: home.php');
                 exit();
             } else {
                 $error = 'Invalid username or password.';

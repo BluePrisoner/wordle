@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
 
         case 'submit_guess':
-            $gameId = (int)($_POST['game_id'] ?? 0);
+            $gameId = (int) ($_POST['game_id'] ?? 0);
             $guess = strtolower(trim($_POST['guess'] ?? ''));
 
             if (strlen($guess) !== 5 || !ctype_alpha($guess)) {
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
 
         case 'get_game_state':
-            $gameId = (int)($_POST['game_id'] ?? 0);
+            $gameId = (int) ($_POST['game_id'] ?? 0);
             $stmt = $conn->prepare("SELECT gs.*, d.word as target_word FROM game_sessions gs JOIN dictionary d ON gs.word_id = d.id WHERE gs.id = ? AND gs.user_id = ?");
             $stmt->bind_param("ii", $gameId, $userId);
             $stmt->execute();
@@ -130,6 +130,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             break;
 
+        case 'abandon_game':
+            $gameId = (int) ($_POST['game_id'] ?? 0);
+            $stmt = $conn->prepare("DELETE FROM game_sessions WHERE id = ? AND user_id = ? AND status = 'playing'");
+            $stmt->bind_param("ii", $gameId, $userId);
+            if ($stmt->execute()) {
+                $response = [
+                    'success' => true,
+                    'message' => 'Game abandoned successfully'
+                ];
+            } else {
+                $response['message'] = 'Failed to abandon game';
+            }
+            break;
+
         default:
             $response['message'] = 'Invalid action';
     }
@@ -142,7 +156,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 echo json_encode($response);
 
 // Helper function to calculate letter feedback
-function calculateLetterFeedback(string $guess, string $target): array {
+function calculateLetterFeedback(string $guess, string $target): array
+{
     $feedback = array_fill(0, 5, 'gray');
     $targetLetters = str_split($target);
     $guessLetters = str_split($guess);

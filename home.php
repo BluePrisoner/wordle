@@ -202,10 +202,22 @@ $leaderboard = getTopPlayers(10);
 
   <script>
     function confirmAbandon(gameId) {
-      if (confirm('Are you sure you want to abandon this game? This cannot be undone.')) {
-        window.location.href = `game.php?abandon=${gameId}`;
-      }
+    if (confirm('Are you sure you want to abandon this game? This cannot be undone.')) {
+        fetch('game.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=abandon_game&game_id=${gameId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
     }
+}
   </script>
 </body>
 
