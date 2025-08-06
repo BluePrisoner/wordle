@@ -6,9 +6,10 @@ $userStats = getUserStats($_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wordle Clone - Game</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -24,10 +25,29 @@ $userStats = getUserStats($_SESSION['user_id']);
       text-transform: uppercase;
       transition: all 0.3s ease;
     }
-    .tile.filled { border-color: #6b7280; }
-    .tile.correct { background-color: #22c55e; border-color: #22c55e; color: #fff; }
-    .tile.present { background-color: #eab308; border-color: #eab308; color: #fff; }
-    .tile.absent { background-color: #6b7280; border-color: #6b7280; color: #fff; }
+
+    .tile.filled {
+      border-color: #6b7280;
+    }
+
+    .tile.correct {
+      background-color: #22c55e;
+      border-color: #22c55e;
+      color: #fff;
+    }
+
+    .tile.present {
+      background-color: #eab308;
+      border-color: #eab308;
+      color: #fff;
+    }
+
+    .tile.absent {
+      background-color: #6b7280;
+      border-color: #6b7280;
+      color: #fff;
+    }
+
     .key {
       padding: 0.5rem 0.75rem;
       margin: 0.25rem;
@@ -36,11 +56,24 @@ $userStats = getUserStats($_SESSION['user_id']);
       cursor: pointer;
       transition: background-color 0.2s ease;
     }
-    .key.correct { background-color: #22c55e; color: white; }
-    .key.present { background-color: #eab308; color: white; }
-    .key.absent { background-color: #6b7280; color: white; }
+
+    .key.correct {
+      background-color: #22c55e;
+      color: white;
+    }
+
+    .key.present {
+      background-color: #eab308;
+      color: white;
+    }
+
+    .key.absent {
+      background-color: #6b7280;
+      color: white;
+    }
   </style>
 </head>
+
 <body class="bg-gray-100 min-h-screen">
   <!-- Navigation -->
   <nav class="bg-white shadow">
@@ -72,14 +105,15 @@ $userStats = getUserStats($_SESSION['user_id']);
     <!-- Controls -->
     <div class="text-center mb-6">
       <button id="new-game-btn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">New Game</button>
-      <button id="instructions-btn" class="bg-gray-600 text-white px-6 py-2 rounded ml-2 hover:bg-gray-700">How to Play</button>
+      <button id="instructions-btn" class="bg-gray-600 text-white px-6 py-2 rounded ml-2 hover:bg-gray-700">How to
+        Play</button>
     </div>
 
     <!-- Keyboard -->
     <div class="text-center mb-6">
       <div class="flex justify-center flex-wrap max-w-md mx-auto">
         <?php
-        $keyboard = ['q','w','e','r','t','y','u','i','o','p','a','s','d','f','g','h','j','k','l','enter','z','x','c','v','b','n','m','backspace'];
+        $keyboard = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'backspace'];
         foreach ($keyboard as $key) {
           $label = $key === 'backspace' ? '⌫' : strtoupper($key);
           echo "<div class='key bg-gray-300' data-key=\"$key\">$label</div>";
@@ -93,7 +127,8 @@ $userStats = getUserStats($_SESSION['user_id']);
   </div>
 
   <!-- Modals -->
-  <div id="instructions-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+  <div id="instructions-modal"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
     <div class="bg-white p-6 rounded-md max-w-md w-full">
       <h2 class="text-xl font-bold mb-2">How to Play</h2>
       <p>Guess the 5-letter word in 6 tries. Each guess must be a valid word.</p>
@@ -103,7 +138,8 @@ $userStats = getUserStats($_SESSION['user_id']);
         <li><strong>Gray</strong>: letter not in the word</li>
         <li>Points are based on how fast you guess the word!</li>
       </ul>
-      <button id="close-instructions" class="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Got it!</button>
+      <button id="close-instructions" class="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Got
+        it!</button>
     </div>
   </div>
 
@@ -226,9 +262,17 @@ $userStats = getUserStats($_SESSION['user_id']);
 
         for (let i = 0; i < 5; i++) {
           const tile = document.querySelector(`[data-row="${this.currentRow}"][data-col="${i}"]`);
-          tile.classList.add(data.feedback[i]);
+          const feedbackClass = {
+            green: 'correct',
+            yellow: 'present',
+            gray: 'absent'
+          }[data.feedback[i]];
+
+          tile.classList.add(feedbackClass);
+
           const k = document.querySelector(`.key[data-key="${this.currentGuess[i]}"]`);
-          if (k) k.classList.add(data.feedback[i]);
+          if (k) k.classList.add(feedbackClass);
+
         }
 
         if (data.game_over) {
@@ -248,4 +292,5 @@ $userStats = getUserStats($_SESSION['user_id']);
     document.addEventListener('DOMContentLoaded', () => new WordleGame());
   </script>
 </body>
+
 </html>
