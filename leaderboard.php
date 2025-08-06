@@ -60,7 +60,7 @@ $userRank = getUserRank($_SESSION['user_id']);
       <h1 class="text-2xl font-bold text-gray-800">Wordle Clone</h1>
       <div class="flex items-center gap-4 text-sm">
         <a href="home.php" class="text-blue-600 hover:underline">Home</a>
-        <a href="game.php" class="text-blue-600 hover:underline">New Game</a>
+        <a href="index.php" class="text-blue-600 hover:underline">New Game</a>
         <span class="text-gray-600">Welcome, <?= htmlspecialchars($_SESSION['username']); ?></span>
         <a href="logout.php" class="text-red-600 hover:underline">Logout</a>
       </div>

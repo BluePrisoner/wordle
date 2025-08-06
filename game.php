@@ -143,6 +143,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $response['message'] = 'Failed to abandon game';
             }
             break;
+        case 'continue_game':
+            $gameId = (int) ($_POST['game_id'] ?? 0);
+
+            $stmt = $conn->prepare("SELECT gs.*, d.word as target_word 
+                           FROM game_sessions gs 
+                           JOIN dictionary d ON gs.word_id = d.id 
+                           WHERE gs.id = ? AND gs.user_id = ? AND gs.status = 'playing'");
+            $stmt->bind_param("ii", $gameId, $userId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) {
+                $game = $result->fetch_assoc();
+                $guesses = json_decode($game['guesses'], true) ?: [];
+
+                // Calculate feedback for each existing guess
+                $feedbackArray = [];
+                foreach ($guesses as $guess) {
+                    $feedbackArray[] = calculateLetterFeedback($guess, $game['target_word']);
+                }
+
+                $response = [
+                    'success' => true,
+                    'game_id' => $game['id'],
+                    'target_word' => $game['target_word'],
+                    'existing_guesses' => $guesses,
+                    'feedback' => $feedbackArray, // Include feedback for each guess
+                    'guess_count' => $game['guess_count'],
+                    'message' => 'Game loaded successfully'
+                ];
+            } else {
+                $response['message'] = 'Game not found or already completed';
+            }
+            break;
 
         default:
             $response['message'] = 'Invalid action';

@@ -104,7 +104,7 @@ $userStats = getUserStats($_SESSION['user_id']);
 
     <!-- Controls -->
     <div class="text-center mb-6">
-      <button id="new-game-btn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">New Game</button>
+      <button id="exit-game-btn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Exit</button>
       <button id="instructions-btn" class="bg-gray-600 text-white px-6 py-2 rounded ml-2 hover:bg-gray-700">How to
         Play</button>
     </div>
@@ -158,7 +158,16 @@ $userStats = getUserStats($_SESSION['user_id']);
       constructor() {
         this.reset();
         this.initEvents();
-        this.startNewGame();
+
+        // Check if we're continuing a game from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const continueGameId = urlParams.get('continue');
+
+        if (continueGameId) {
+          this.loadGame(continueGameId);
+        } else {
+          this.startNewGame();
+        }
       }
 
       reset() {
@@ -175,7 +184,10 @@ $userStats = getUserStats($_SESSION['user_id']);
       }
 
       initEvents() {
-        document.getElementById('new-game-btn').onclick = () => this.startNewGame();
+        document.getElementById('exit-game-btn').onclick = () => {
+          window.location.href = 'home.php';
+        };
+
         document.getElementById('instructions-btn').onclick = () => this.toggleModal('instructions-modal', true);
         document.getElementById('close-instructions').onclick = () => this.toggleModal('instructions-modal', false);
         document.getElementById('play-again').onclick = () => {
@@ -248,6 +260,54 @@ $userStats = getUserStats($_SESSION['user_id']);
         }
       }
 
+      async loadGame(gameId) {
+        const res = await fetch('game.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `action=continue_game&game_id=${gameId}`
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          this.gameId = data.game_id;
+
+          // Restore existing guesses and their feedback if any
+          if (data.existing_guesses && data.existing_guesses.length > 0) {
+            for (let i = 0; i < data.existing_guesses.length; i++) {
+              const guess = data.existing_guesses[i];
+              const feedback = data.feedback[i];
+
+              for (let j = 0; j < guess.length; j++) {
+                const tile = document.querySelector(`[data-row="${i}"][data-col="${j}"]`);
+                tile.textContent = guess[j].toUpperCase();
+                tile.classList.add('filled');
+
+                // Add feedback color class
+                const feedbackClass = {
+                  green: 'correct',
+                  yellow: 'present',
+                  gray: 'absent'
+                }[feedback[j]];
+                tile.classList.add(feedbackClass);
+
+                // Update keyboard colors
+                const key = document.querySelector(`.key[data-key="${guess[j]}"]`);
+                if (key) {
+                  // Only update if not already marked correct (correct takes precedence)
+                  if (!key.classList.contains('correct')) {
+                    key.classList.add(feedbackClass);
+                  }
+                }
+              }
+              this.currentRow = i + 1;
+            }
+            this.showStatus("Game loaded successfully!");
+          }
+        } else {
+          this.showStatus("Error: " + data.message);
+          this.startNewGame(); // Fallback to new game if loading fails
+        }
+      }
       async submitGuess() {
         if (this.currentGuess.length !== 5) return this.showStatus("Word must be 5 letters");
 
@@ -287,6 +347,7 @@ $userStats = getUserStats($_SESSION['user_id']);
           this.showStatus(data.message);
         }
       }
+
     }
 
     document.addEventListener('DOMContentLoaded', () => new WordleGame());
