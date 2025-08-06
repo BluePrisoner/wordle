@@ -1,6 +1,5 @@
 <?php
 require_once 'config.php';
-require_once 'function.php';
 requireLogin();
 
 $userStats = getUserStats($_SESSION['user_id']);
