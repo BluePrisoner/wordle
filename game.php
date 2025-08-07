@@ -177,6 +177,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $response['message'] = 'Game not found or already completed';
             }
             break;
+        case 'cancel_if_empty':
+            $gameId = (int) ($_POST['game_id'] ?? 0);
+
+            $stmt = $conn->prepare("DELETE FROM game_sessions WHERE id = ? AND user_id = ? AND guess_count = 0");
+            $stmt->bind_param("ii", $gameId, $userId);
+            $stmt->execute();
+
+            $response = ['success' => true, 'message' => 'Empty game cleaned up'];
+            break;
+
 
         default:
             $response['message'] = 'Invalid action';

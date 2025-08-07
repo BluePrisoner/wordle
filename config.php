@@ -111,7 +111,7 @@ function getIncompleteGames($userId) {
     $stmt = $conn->prepare("
         SELECT id, guess_count, started_at 
         FROM game_sessions 
-        WHERE user_id = ? AND status = 'playing'
+        WHERE user_id = ? AND status = 'playing' AND guess_count > 0
         ORDER BY started_at DESC
     ");
     $stmt->bind_param("i", $userId);

@@ -166,6 +166,7 @@ $userStats = getUserStats($_SESSION['user_id']);
         const urlParams = new URLSearchParams(window.location.search);
         const continueGameId = urlParams.get('continue');
 
+
         if (continueGameId) {
           this.loadGame(continueGameId);
         } else {
@@ -190,6 +191,8 @@ $userStats = getUserStats($_SESSION['user_id']);
         document.getElementById('exit-game-btn').onclick = () => {
           window.location.href = 'home.php';
         };
+
+
         document.getElementById('go-home').onclick = () => {
           window.location.href = 'home.php';
         };
@@ -276,6 +279,9 @@ $userStats = getUserStats($_SESSION['user_id']);
         const data = await res.json();
         if (data.success) {
           this.gameId = data.game_id;
+          this.cleanupBound = () => this.cleanupGame();
+          window.addEventListener('beforeunload', this.cleanupBound);
+
 
           // Restore existing guesses and their feedback if any
           if (data.existing_guesses && data.existing_guesses.length > 0) {
@@ -314,6 +320,15 @@ $userStats = getUserStats($_SESSION['user_id']);
           this.startNewGame(); // Fallback to new game if loading fails
         }
       }
+      async cleanupGame() {
+        if (!this.gameOver && this.gameId !== null) {
+          navigator.sendBeacon('game.php', new URLSearchParams({
+            action: 'cancel_if_empty',
+            game_id: this.gameId
+          }));
+        }
+      }
+
       async submitGuess() {
         if (this.currentGuess.length !== 5) return this.showStatus("Word must be 5 letters");
 
