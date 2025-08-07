@@ -137,7 +137,7 @@ function getTopPlayers($limit = 10) {
         FROM users u
         LEFT JOIN game_sessions gs ON u.id = gs.user_id
         GROUP BY u.id
-        HAVING total_games > 0
+        HAVING total_games >= 0
         ORDER BY total_points DESC, win_percentage DESC
         LIMIT ?
     ");
