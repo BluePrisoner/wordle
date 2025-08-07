@@ -137,15 +137,15 @@ $leaderboard = getTopPlayers(10);
           <div class="text-gray-600">Games Played</div>
         </div>
         <div class="game-card p-6 text-center">
-          <div class="text-4xl font-bold text-green-600 mb-2"><?= $userStats['wins'] ? $userStats['wins']: "N/A"  ?></div>
+          <div class="text-4xl font-bold text-green-600 mb-2"><?= $userStats['total_games']!=0 ? $userStats['wins']: "N/A"  ?></div>
           <div class="text-gray-600">Games Won</div>
         </div>
         <div class="game-card p-6 text-center">
-          <div class="text-4xl font-bold text-yellow-500 mb-2"><?= $userStats['win_percentage'] ? $userStats['win_percentage']."%" : "N/A" ?></div>
+          <div class="text-4xl font-bold text-yellow-500 mb-2"><?= $userStats['total_games']!=0 ? $userStats['win_percentage']."%" : "N/A" ?></div>
           <div class="text-gray-600">Win Rate</div>
         </div>
         <div class="game-card p-6 text-center">
-          <div class="text-4xl font-bold text-blue-600 mb-2"><?= $userStats['total_points'] ? $userStats['total_points'] : "N/A" ?></div>
+          <div class="text-4xl font-bold text-blue-600 mb-2"><?= $userStats['total_games']!=0 ? $userStats['total_points'] : "N/A" ?></div>
           <div class="text-gray-600">Total Points</div>
         </div>
       </div>
