@@ -253,11 +253,12 @@ $userStats = getUserStats($_SESSION['user_id']);
         });
         const data = await res.json();
         if (data.success) {
-          this.gameId = data.game_id;
-          this.showStatus("New game started!");
+          // Redirect to same page with ?continue=<game_id>
+          window.location.href = `index.php?continue=${data.game_id}`;
         } else {
           this.showStatus("Error: " + data.message);
         }
+
       }
 
       async loadGame(gameId) {
