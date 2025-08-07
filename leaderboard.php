@@ -4,6 +4,13 @@ requireLogin();
 
 $leaderboard = getTopPlayers(50);
 $userRank = getUserRank($_SESSION['user_id']);
+$userRank = (int)$userRank;
+$userRankIndex = $userRank - 1;
+
+// If rank is invalid or not in top 50, prevent crash
+$playerStats = ($userRankIndex >= 0 && isset($leaderboard[$userRankIndex]))
+    ? $leaderboard[$userRankIndex]
+    : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -117,7 +124,7 @@ $userRank = getUserRank($_SESSION['user_id']);
             </td>
             <td class="py-4 px-6"><?= $player['total_games'] ?></td>
             <td class="py-4 px-6"><?= $player['wins'] ?></td>
-            <td class="py-4 px-6"><?= $player['win_percentage'] ?>%</td>
+            <td class="py-4 px-6"><?= $player['win_percentage']!=0 ? $player['win_percentage'] . "%" : "N/A" ?></td>
             <td class="py-4 px-6 font-bold"><?= $player['total_points'] ?></td>
           </tr>
           <?php endforeach; ?>
@@ -135,15 +142,15 @@ $userRank = getUserRank($_SESSION['user_id']);
         </div>
         <div class="bg-gray-100 p-4 rounded-lg">
           <div class="text-sm text-gray-600 mb-1">Total Points</div>
-          <div class="text-2xl font-bold"><?= $leaderboard[$userRank - 1]['total_points'] ?></div>
+          <div class="text-2xl font-bold"><?= $playerStats ? $playerStats['total_points'] : "N/A" ?></div>
         </div>
         <div class="bg-gray-100 p-4 rounded-lg">
           <div class="text-sm text-gray-600 mb-1">Win Rate</div>
-          <div class="text-2xl font-bold"><?= $leaderboard[$userRank - 1]['win_percentage'] ?>%</div>
+          <div class="text-2xl font-bold"><?= $playerStats ? $playerStats['win_percentage'] . "%" : "N/A" ?></div>
         </div>
         <div class="bg-gray-100 p-4 rounded-lg">
           <div class="text-sm text-gray-600 mb-1">Games Played</div>
-          <div class="text-2xl font-bold"><?= $leaderboard[$userRank - 1]['total_games'] ?></div>
+          <div class="text-2xl font-bold"><?= $playerStats ? $playerStats['total_games'] : "N/A" ?></div>
         </div>
       </div>
     </div>
