@@ -4,6 +4,13 @@ requireLogin();
 
 $leaderboard = getTopPlayers(50);
 $userRank = getUserRank($_SESSION['user_id']);
+$userRank = (int)$userRank;
+$userRankIndex = $userRank - 1;
+
+// If rank is invalid or not in top 50, prevent crash
+$playerStats = ($userRankIndex >= 0 && isset($leaderboard[$userRankIndex]))
+    ? $leaderboard[$userRankIndex]
+    : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -74,7 +81,7 @@ $userRank = getUserRank($_SESSION['user_id']);
       <h1 class="text-3xl font-bold text-gray-800">Leaderboard</h1>
       <div class="bg-white rounded-lg px-4 py-2 shadow">
         <span class="text-gray-600">Your Rank: </span>
-        <span class="font-bold"><?= $userRank ?></span>
+        <span class="font-bold"><?= $userRank==0? "N/A" : $userRank ?></span>
       </div>
     </div>
 
@@ -116,9 +123,9 @@ $userRank = getUserRank($_SESSION['user_id']);
               </div>
             </td>
             <td class="py-4 px-6"><?= $player['total_games'] ?></td>
-            <td class="py-4 px-6"><?= $player['wins'] ?></td>
-            <td class="py-4 px-6"><?= $player['win_percentage'] ?>%</td>
-            <td class="py-4 px-6 font-bold"><?= $player['total_points'] ?></td>
+            <td class="py-4 px-6"><?= $player['total_games']!=0 ? $player['wins'] : "N/A" ?></td>
+            <td class="py-4 px-6"><?= $player['total_games']!=0  ? $player['win_percentage'] . "%" : "N/A" ?></td>
+            <td class="py-4 px-6 font-bold"><?= $player['total_games']!=0 ? $player['total_points'] : "N/A" ?></td>
           </tr>
           <?php endforeach; ?>
         </tbody>
@@ -131,19 +138,19 @@ $userRank = getUserRank($_SESSION['user_id']);
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="bg-gray-100 p-4 rounded-lg">
           <div class="text-sm text-gray-600 mb-1">Current Rank</div>
-          <div class="text-2xl font-bold"><?= $userRank ?></div>
+          <div class="text-2xl font-bold"><?= $userRank==0? "N/A" : $userRank ?></div>
         </div>
         <div class="bg-gray-100 p-4 rounded-lg">
           <div class="text-sm text-gray-600 mb-1">Total Points</div>
-          <div class="text-2xl font-bold"><?= $leaderboard[$userRank - 1]['total_points'] ?></div>
+          <div class="text-2xl font-bold"><?= $playerStats ? $playerStats['total_points'] : "N/A" ?></div>
         </div>
         <div class="bg-gray-100 p-4 rounded-lg">
           <div class="text-sm text-gray-600 mb-1">Win Rate</div>
-          <div class="text-2xl font-bold"><?= $leaderboard[$userRank - 1]['win_percentage'] ?>%</div>
+          <div class="text-2xl font-bold"><?= $playerStats ? $playerStats['win_percentage'] . "%" : "N/A" ?></div>
         </div>
         <div class="bg-gray-100 p-4 rounded-lg">
           <div class="text-sm text-gray-600 mb-1">Games Played</div>
-          <div class="text-2xl font-bold"><?= $leaderboard[$userRank - 1]['total_games'] ?></div>
+          <div class="text-2xl font-bold"><?= $playerStats ? $playerStats['total_games'] : "N/A" ?></div>
         </div>
       </div>
     </div>

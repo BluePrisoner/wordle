@@ -148,7 +148,10 @@ $userStats = getUserStats($_SESSION['user_id']);
     <div class="bg-white p-6 rounded-md max-w-md w-full text-center">
       <h2 id="result-title" class="text-2xl font-bold mb-2"></h2>
       <p id="result-message" class="mb-4"></p>
-      <button id="play-again" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Play Again</button>
+      <div class="flex justify-center gap-4">
+        <button id="play-again" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Play Again</button>
+        <button id="go-home" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-gray-700">Home</button>
+      </div>
     </div>
   </div>
 
@@ -187,7 +190,9 @@ $userStats = getUserStats($_SESSION['user_id']);
         document.getElementById('exit-game-btn').onclick = () => {
           window.location.href = 'home.php';
         };
-
+        document.getElementById('go-home').onclick = () => {
+          window.location.href = 'home.php';
+        };
         document.getElementById('instructions-btn').onclick = () => this.toggleModal('instructions-modal', true);
         document.getElementById('close-instructions').onclick = () => this.toggleModal('instructions-modal', false);
         document.getElementById('play-again').onclick = () => {

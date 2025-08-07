@@ -84,7 +84,7 @@ $leaderboard = getTopPlayers(10);
       <div class="flex items-center gap-4 text-sm">
         <span class="text-gray-600">Games: <?= $userStats['total_games']; ?></span>
         <span class="text-gray-600">Wins: <?= $userStats['wins']; ?></span>
-        <span class="text-gray-600">Points: <?= $userStats['total_points']; ?></span>
+        <span class="text-gray-600">Points: <?= $userStats ? $userStats['total_points'] : "N/A" ?></span>
         <span class="text-gray-600">Welcome, <?= htmlspecialchars($_SESSION['username']); ?></span>
         <a href="logout.php" class="text-red-600 hover:underline">Logout</a>
       </div>
@@ -137,15 +137,15 @@ $leaderboard = getTopPlayers(10);
           <div class="text-gray-600">Games Played</div>
         </div>
         <div class="game-card p-6 text-center">
-          <div class="text-4xl font-bold text-green-600 mb-2"><?= $userStats['wins'] ?></div>
+          <div class="text-4xl font-bold text-green-600 mb-2"><?= $userStats['wins'] ? $userStats['wins']: "N/A"  ?></div>
           <div class="text-gray-600">Games Won</div>
         </div>
         <div class="game-card p-6 text-center">
-          <div class="text-4xl font-bold text-yellow-500 mb-2"><?= $userStats['win_percentage'] ?>%</div>
+          <div class="text-4xl font-bold text-yellow-500 mb-2"><?= $userStats['win_percentage'] ? $userStats['win_percentage']."%" : "N/A" ?></div>
           <div class="text-gray-600">Win Rate</div>
         </div>
         <div class="game-card p-6 text-center">
-          <div class="text-4xl font-bold text-blue-600 mb-2"><?= $userStats['total_points'] ?></div>
+          <div class="text-4xl font-bold text-blue-600 mb-2"><?= $userStats['total_points'] ? $userStats['total_points'] : "N/A" ?></div>
           <div class="text-gray-600">Total Points</div>
         </div>
       </div>
@@ -179,9 +179,9 @@ $leaderboard = getTopPlayers(10);
                 </div>
               </td>
               <td class="py-3 px-4"><?= $player['total_games'] ?></td>
-              <td class="py-3 px-4"><?= $player['wins'] ?></td>
-              <td class="py-3 px-4"><?= $player['win_percentage'] ?>%</td>
-              <td class="py-3 px-4 font-bold"><?= $player['total_points'] ?></td>
+              <td class="py-3 px-4"><?= $player['total_games']!=0 ? $player['wins'] : "N/A" ?></td>
+              <td class="py-3 px-4"><?= $player['total_games']!=0 ? $player['win_percentage']."%" : "N/A" ?></td>
+              <td class="py-3 px-4 font-bold"><?= $player['total_games']!=0 ? $player['total_points'] : "N/A" ?></td>
             </tr>
             <?php endforeach; ?>
           </tbody>
