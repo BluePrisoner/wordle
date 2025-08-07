@@ -13,6 +13,13 @@ $userStats = getUserStats($_SESSION['user_id']);
   <title>Wordle Clone - Game</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f0fff3ff 0%, #e0f2fe 100%);
+    }
+
     .tile {
       width: 3rem;
       height: 3rem;
@@ -76,18 +83,37 @@ $userStats = getUserStats($_SESSION['user_id']);
 
 <body class="bg-gray-100 min-h-screen">
   <!-- Navigation -->
-  <nav class="bg-white shadow">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-gray-800">Wordle Clone</h1>
-      <div class="flex items-center gap-4 text-sm">
-        <span class="text-gray-600">Games: <?= $userStats['total_games']; ?></span>
-        <span class="text-gray-600">Wins: <?= $userStats['wins']; ?></span>
-        <span class="text-gray-600">Points: <?= $userStats['total_points']; ?></span>
-        <span class="text-gray-600">Welcome, <?= htmlspecialchars($_SESSION['username']); ?></span>
-        <a href="logout.php" class="text-red-600 hover:underline">Logout</a>
+  <nav class="bg-gradient-to-r from-gray-900 to-black shadow-xl">
+    <div class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-teal-400 tracking-tight">Wordle Clone</h1>
+      <div class="flex items-center gap-6">
+        <div
+          class="flex items-center gap-4 bg-gray-800/50 rounded-full px-4 py-2 backdrop-blur-sm border border-gray-700">
+          <div class="flex flex-col items-center">
+            <span class="text-xs font-medium text-teal-300/80">Games</span>
+            <span class="text-sm font-semibold text-white"><?= $userStats['total_games']; ?></span>
+          </div>
+          <div class="h-5 w-px bg-gray-600"></div>
+          <div class="flex flex-col items-center">
+            <span class="text-xs font-medium text-teal-300/80">Wins</span>
+            <span class="text-sm font-semibold text-teal-400"><?= $userStats['wins']; ?></span>
+          </div>
+          <div class="h-5 w-px bg-gray-600"></div>
+          <div class="flex flex-col items-center">
+            <span class="text-xs font-medium text-teal-300/80">Points</span>
+            <span class="text-sm font-semibold text-amber-300"><?= $userStats['total_points']; ?></span>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="text-sm font-medium text-gray-300">Welcome,
+            <?= htmlspecialchars($_SESSION['username']); ?></span>
+          <a href="logout.php"
+            class="text-sm font-medium text-white bg-teal-600 hover:bg-teal-500 px-4 py-1.5 rounded-full transition-all duration-200 shadow-md hover:shadow-teal-500/20">Logout</a>
+        </div>
       </div>
     </div>
   </nav>
+
 
   <!-- Main Game Container -->
   <div class="max-w-md mx-auto py-8 px-4">
@@ -110,22 +136,47 @@ $userStats = getUserStats($_SESSION['user_id']);
     </div>
 
     <!-- Keyboard -->
-    <div class="text-center mb-6">
-      <div class="flex justify-center flex-wrap max-w-md mx-auto">
-        <?php
-        $keyboard = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'backspace'];
-        foreach ($keyboard as $key) {
-          $label = $key === 'backspace' ? '⌫' : strtoupper($key);
-          echo "<div class='key bg-gray-300' data-key=\"$key\">$label</div>";
+    <div class="text-center mb-6 space-y-2">
+      <?php
+      // QWERTY keyboard rows
+      $rows = [
+        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+        ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+        ['enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'backspace']
+      ];
+
+      foreach ($rows as $rowIndex => $row) {
+        $indent = match ($rowIndex) {
+          1 => 'ml-3',   // second row indentation
+          default => ''
+        };
+
+        echo "<div class='flex justify-center gap-1 $indent'>";
+        foreach ($row as $key) {
+          $label = $key === 'backspace' ? '⌫' : ($key === 'enter' ? 'Enter' : strtoupper($key));
+          $wClass = in_array($key, ['enter', 'backspace']) ? 'w-16' : 'w-10';
+
+          // Apply custom colors for Enter and Backspace
+          $bgColor = match ($key) {
+            'enter' => 'bg-blue-400 hover:bg-blue-500',
+            'backspace' => 'bg-red-400 hover:bg-red-500',
+            default => 'bg-gray-300 hover:bg-gray-400'
+          };
+
+          echo "<div class='key $wClass h-12 $bgColor rounded flex items-center justify-center cursor-pointer text-sm font-medium select-none' data-key=\"$key\">$label</div>";
         }
-        ?>
-      </div>
+        echo "</div>";
+      }
+      ?>
     </div>
 
-    <!-- Flashing Status Toast -->
-    <div id="status-toast"
-      class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded shadow z-50 opacity-0 transition-opacity duration-300 pointer-events-none">
-    </div>
+
+  </div>
+
+  <!-- Flashing Status Toast -->
+  <div id="status-toast"
+    class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded shadow z-50 opacity-0 transition-opacity duration-300 pointer-events-none">
+  </div>
 
   </div>
 
@@ -187,7 +238,19 @@ $userStats = getUserStats($_SESSION['user_id']);
           tile.textContent = '';
           tile.className = 'tile';
         });
-        document.querySelectorAll('.key').forEach(key => key.className = 'key bg-gray-300');
+        document.querySelectorAll('.key').forEach(key => {
+          const k = key.dataset.key;
+          let baseClass = 'key';
+          if (k === 'enter') {
+            baseClass += ' bg-blue-500 hover:bg-blue-700 text-white';
+          } else if (k === 'backspace') {
+            baseClass += ' bg-red-500 hover:bg-red-700';
+          } else {
+            baseClass += ' bg-gray-300 hover:bg-gray-400';
+          }
+          key.className = baseClass;
+        });
+
       }
 
       initEvents() {
