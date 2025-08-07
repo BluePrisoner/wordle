@@ -122,8 +122,11 @@ $userStats = getUserStats($_SESSION['user_id']);
       </div>
     </div>
 
-    <!-- Status Message -->
-    <div id="status-message" class="text-center text-lg font-semibold text-gray-700"></div>
+    <!-- Flashing Status Toast -->
+    <div id="status-toast"
+      class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded shadow z-50 opacity-0 transition-opacity duration-300 pointer-events-none">
+    </div>
+
   </div>
 
   <!-- Modals -->
@@ -228,9 +231,17 @@ $userStats = getUserStats($_SESSION['user_id']);
         modal.classList.toggle('flex', show);
       }
 
-      showStatus(msg) {
-        document.getElementById('status-message').textContent = msg;
+      showStatus(message, duration = 1500) {
+        const toast = document.getElementById('status-toast');
+        toast.textContent = message;
+        toast.classList.remove('opacity-0');
+
+        clearTimeout(this.statusTimeout);
+        this.statusTimeout = setTimeout(() => {
+          toast.classList.add('opacity-0');
+        }, duration);
       }
+
 
       typeLetter(letter) {
         if (this.currentCol < 5) {

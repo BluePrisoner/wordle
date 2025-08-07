@@ -19,7 +19,7 @@ $leaderboard = getTopPlayers(10);
     
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      background: linear-gradient(135deg, #f0fff3ff 0%, #e0f2fe 100%);
     }
     
     .game-card {

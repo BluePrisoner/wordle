@@ -84,7 +84,7 @@ function getUserStats($userId) {
             SUM(points) as total_points,
             ROUND(SUM(CASE WHEN status = 'won' THEN 1 ELSE 0 END) / COUNT(*) * 100, 1) as win_percentage
         FROM game_sessions
-        WHERE user_id = ?
+        WHERE user_id = ? AND guess_count > 0
     ");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
