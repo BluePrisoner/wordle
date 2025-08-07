@@ -130,7 +130,7 @@ $userStats = getUserStats($_SESSION['user_id']);
 
     <!-- Controls -->
     <div class="text-center mb-6">
-      <button id="exit-game-btn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Exit</button>
+      <button id="exit-game-btn" class="bg-teal-600 text-white px-6 py-2 rounded hover:bg-teal-700">Exit</button>
       <button id="instructions-btn" class="bg-gray-600 text-white px-6 py-2 rounded ml-2 hover:bg-gray-700">How to
         Play</button>
     </div>
